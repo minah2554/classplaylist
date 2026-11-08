@@ -69,6 +69,13 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--b);outline-offse
 /* roster cards */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:16px}
 .card .who,.card .tags,.card .empty{padding:0 4px}
+.like{display:inline-flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--mu);font-size:14px}
+.like:hover:not(:disabled){color:var(--tx);border-color:var(--mu)}
+.like:disabled{cursor:default;border-color:transparent;padding-left:0;padding-right:0}
+.like.on{color:#ff6b86;border-color:#ff6b8666}
+.like.on svg{fill:currentColor}
+.like.pop svg{animation:pop .4s ease-out}
+@keyframes pop{40%{transform:scale(1.5)}}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px 8px 12px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;cursor:pointer;color:inherit}
 .card.mine{border-color:var(--a);box-shadow:0 0 0 1px var(--a) inset}
 .art{width:100%;aspect-ratio:1;border-radius:50%;position:relative;overflow:hidden;background:#120e1b;display:grid;place-items:center;border:2px dashed var(--line);color:var(--mu);font-size:28px}
@@ -112,7 +119,7 @@ dialog form{display:flex;flex-direction:column;gap:10px}
 <body>
 <button id="bgm" class="ghost" aria-pressed="false" aria-label="BGM"></button>
 <div id="app"></div>
-<footer><span>© 2026 MINARI STUDIO. All rights reserved.</span><span class="sep">|</span><span>Class Playlist Web App v1.6</span><br></footer>
+<footer><span>© 2026 MINARI STUDIO. All rights reserved.</span><span class="sep">|</span><span>Class Playlist Web App v1.7</span><br></footer>
 <div id="dock"><div class="vid"><div id="yt"></div></div>
  <div class="np"><b id="npt"></b><button class="ghost ic" data-act="prev" aria-label="이전"></button><button class="ghost ic" data-act="next" aria-label="다음"></button><button class="ghost ic" data-act="stop" aria-label="닫기"></button></div></div>
 <dialog id="dlg"><form id="f"></form></dialog>
@@ -129,6 +136,7 @@ const LS = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage
 const I = {
   play: '<polygon points="6 3 20 12 6 21 6 3"/>', skipB: '<polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/>',
   skipF: '<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/>', x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
   plus: '<path d="M5 12h14"/><path d="M12 5v14"/>', music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
   musicOff: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="m3 3 18 18"/>'
 };
@@ -151,7 +159,9 @@ async function makeStore() {
       watch: (id, cb) => F.onSnapshot(F.doc(db, 'classes', id), d => cb(d.data()?.s || {})),
       patch: (id, no, o) => F.setDoc(F.doc(db, 'classes', id), {s: {[no]: o}}, {merge: true}),
       remove: (id, no) => F.updateDoc(F.doc(db, 'classes', id), {['s.' + no]: F.deleteField()}).catch(() => {}),
-      clear: id => F.setDoc(F.doc(db, 'classes', id), {s: {}})};
+      clear: id => F.setDoc(F.doc(db, 'classes', id), {s: {}}),
+      // me가 null이면 그 노래의 하트를 모두 지움
+      setLike: (id, owner, me, on) => F.updateDoc(F.doc(db, 'classes', id), {[me ? `s.${owner}.likes.${me}` : `s.${owner}.likes`]: on ? true : F.deleteField()}).catch(() => {})};
   }
   const get = () => LS('cp-data') || {settings: null, classes: {}};
   const subs = new Set();
@@ -162,7 +172,8 @@ async function makeStore() {
     watch(id, cb) { const f = () => cb(get().classes[id] || {}); subs.add(f); f(); return () => subs.delete(f); },
     patch: async (id, no, o) => { const d = get(); const c = d.classes[id] ||= {}; c[no] = {...c[no], ...o}; save(d); },
     remove: async (id, no) => { const d = get(); delete (d.classes[id] || {})[no]; save(d); },
-    clear: async id => { const d = get(); delete d.classes[id]; save(d); }};
+    clear: async id => { const d = get(); delete d.classes[id]; save(d); },
+    setLike: async (id, owner, me, on) => { const d = get(), o = d.classes[id]?.[owner]; if (!o) return; if (!me) delete o.likes; else { o.likes ||= {}; on ? o.likes[me] = true : delete o.likes[me]; } save(d); }};
 }
 const store = await makeStore();
 
@@ -239,6 +250,13 @@ const views = {
 const rosterList = () => nums().map(n => { const s = S.students[n]; return `<div><span>${esc(n)} ${esc(s.name)} ${s.vid ? '· 노래 있음' : ''} ${s.pin ? '· PIN 설정됨' : ''}</span>
   ${s.vid ? `<button class="ghost" data-act="delsong" data-no="${esc(n)}">노래 삭제</button>` : ''}<button class="ghost" data-act="pinreset" data-no="${esc(n)}">PIN 초기화</button><button class="ghost" data-act="del" data-no="${esc(n)}">학생 삭제</button></div>`; }).join('') || '<p class="empty">아직 학생이 없어요.</p>';
 
+const likeCount = s => Object.keys(s.likes || {}).filter(k => S.students[k]).length; // 삭제된 학생의 하트는 세지 않음
+function likeBtn(n, s, mine) {
+  const k = likeCount(s), liked = !!(S.me && s.likes?.[S.me]);
+  const label = mine ? (k ? `${k}명이 좋아해요` : '아직 하트가 없어요') : `${liked ? '좋아해요' : '나도 좋아해'}${k ? ' · ' + k : ''}`;
+  return `<button class="like ${liked ? 'on' : ''} ${S.pop === n ? 'pop' : ''}" data-act="like" data-no="${esc(n)}" aria-pressed="${liked}" ${mine ? 'disabled' : ''}>${ic(I.heart, 16)}<span>${label}</span></button>`;
+}
+
 function card(n) {
   const s = S.students[n], mine = n === S.me, on = Q?.q[Q.i] === n && dock.classList.contains('on');
   const art = s.vid
@@ -247,6 +265,7 @@ function card(n) {
   return `<div class="card ${mine ? 'mine' : ''}" role="button" tabindex="0" data-act="card" data-no="${esc(n)}">
     <div style="position:relative;width:100%">${art}${s.vid ? `<button class="play" data-act="play" data-no="${esc(n)}" aria-label="재생">${ic(I.play, 16)}</button>` : ''}</div>
     <div class="who"><small>${esc(n)}</small>${esc(s.name)}</div>
+    ${s.vid ? likeBtn(n, s, mine) : ''}
     ${(s.tags || []).length ? `<div class="tags">${s.tags.map(t => `<span data-act="tag" data-t="${esc(t)}">#${esc(t)}</span>`).join('')}</div>`
       : `<div class="empty">${mine ? '눌러서 노래 올리기' : '아직 비어있어요'}</div>`}</div>`;
 }
@@ -327,6 +346,12 @@ const ACT = {
   },
   card(d) { d.no === S.me ? ACT.edit() : S.students[d.no]?.vid ? startQueue('order', d.no) : 0; },
   play: d => startQueue('order', d.no),
+  async like(d) {
+    if (!S.me) return toast('입장해서 번호를 고르면 하트를 누를 수 있어요');
+    const s = S.students[d.no]; if (!s?.vid || d.no === S.me) return;
+    S.pop = s.likes?.[S.me] ? null : d.no; // 하트를 새로 누를 때만 톡 튀는 효과
+    await store.setLike(cid(), d.no, S.me, !s.likes?.[S.me]); setTimeout(() => S.pop = null, 600);
+  },
   tag(d) { S.filter = S.filter === d.t ? null : d.t; render(); },
   edit() {
     const s = S.students[S.me]; if (!s) return;
@@ -339,11 +364,14 @@ const ACT = {
         if (!v) return '유튜브 링크가 아닌 것 같아요';
         const tags = [0, 1, 2].map(i => d.get('t' + i).replace(/^#+/, '').trim());
         if (tags.some(x => !x)) return '태그 3개를 모두 적어주세요';
-        await store.patch(cid(), S.me, {url, vid: v, tags}); toast('저장했어요'); });
+        const prev = s.vid;
+        await store.patch(cid(), S.me, {url, vid: v, tags});
+        if (prev && prev !== v) await store.setLike(cid(), S.me, null); // 다른 노래로 바꾸면 하트 초기화
+        toast('저장했어요'); });
     const pv = () => { const v = vidOf(form.url.value); $('#pv').classList.toggle('on', !!v); $('#pv').style.backgroundImage = v ? `url(https://i.ytimg.com/vi/${v}/mqdefault.jpg)` : ''; };
     form.oninput = pv; pv();
   },
-  async clearsong() { await store.patch(cid(), S.me, {url: '', vid: '', tags: []}); dlg.close(); },
+  async clearsong() { await store.patch(cid(), S.me, {url: '', vid: '', tags: []}); await store.setLike(cid(), S.me, null); dlg.close(); },
   close: () => dlg.close(),
   all: () => startQueue('order'), rand: () => startQueue('rand'),
   prev: () => playAt(Q.i - 1), next: () => playAt(Q.i + 1), stop: stopPlay,
@@ -363,7 +391,7 @@ const ACT = {
     $('#ro').value = ''; toast(`${rows.length}명 저장했어요`);
   },
   pinreset: d => store.patch(cid(), d.no, {pin: ''}).then(() => toast('PIN을 초기화했어요')),
-  delsong: d => confirm(`${d.no}번 ${S.students[d.no].name} 학생의 노래와 태그만 삭제할까요? (학생 명단은 그대로)`) && store.patch(cid(), d.no, {url: '', vid: '', tags: []}),
+  delsong: d => confirm(`${d.no}번 ${S.students[d.no].name} 학생의 노래와 태그만 삭제할까요? (학생 명단은 그대로)`) && store.patch(cid(), d.no, {url: '', vid: '', tags: []}).then(() => store.setLike(cid(), d.no, null)),
   del: d => confirm(`${d.no}번 ${S.students[d.no].name} 학생을 명단에서 삭제할까요? (노래·PIN도 함께 삭제)`) && store.remove(cid(), d.no),
   async resetclass() {
     const n = nums().length, name = `${S.sel.y}년 ${S.sel.g}학년 ${S.sel.c}반`;
