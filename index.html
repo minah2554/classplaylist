@@ -111,7 +111,7 @@ dialog form{display:flex;flex-direction:column;gap:10px}
 <body>
 <button id="bgm" class="ghost" aria-pressed="false" aria-label="BGM"></button>
 <div id="app"></div>
-<footer>© 2026 MINARI STUDIO. All rights reserved.<span class="sep">|</span>Class Playlist Web App v1.4<br></footer>
+<footer>© 2026 MINARI STUDIO. All rights reserved.<span class="sep">|</span>Class Playlist Web App v1.5<br></footer>
 <div id="dock"><div class="vid"><div id="yt"></div></div>
  <div class="np"><b id="npt"></b><button class="ghost ic" data-act="prev" aria-label="이전"></button><button class="ghost ic" data-act="next" aria-label="다음"></button><button class="ghost ic" data-act="stop" aria-label="닫기"></button></div></div>
 <dialog id="dlg"><form id="f"></form></dialog>
@@ -133,7 +133,9 @@ const I = {
 };
 const ic = (d, s = 18) => `<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
 $('[data-act=prev]').innerHTML = ic(I.skipB); $('[data-act=next]').innerHTML = ic(I.skipF); $('[data-act=stop]').innerHTML = ic(I.x);
-const ADMIN_PW = 'minah'; // shortcut: 클라이언트 코드에 있어 개발자도구로 볼 수 있음, 민감 데이터가 생기면 서버 인증으로 교체
+// 비밀번호 원문은 코드에 없고 SHA-256 해시만 있음. shortcut: 브라우저 검사만으로 우회 가능, 진짜 보호가 필요하면 Firebase Auth + Firestore 규칙으로 교체
+const ADMIN_HASH = '60a7caf7ef390e7fb7c22db2b12d730741f66081c376636c2a6ecfceeb3ab911';
+const sha = async s => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('cp-salt-7f3a:' + s)))].map(b => b.toString(16).padStart(2, '0')).join('');
 
 // ---- storage: Firestore, 설정이 없으면 localStorage 연습 모드 ----
 async function makeStore() {
@@ -304,7 +306,7 @@ function stopPlay() { BGM.duck(false); Q = null; pending = null; ytReady && yt.s
 const myKey = () => LS('cp-me');
 const ACT = {
   disc: () => S.admin ? ACT.toadmin() : ask(`<h3>관리자 모드</h3><input name="pw" type="password" placeholder="비밀번호" autofocus>${btns()}`,
-    d => { if (d.get('pw') !== ADMIN_PW) return '비밀번호가 달라요'; S.admin = true; sessionStorage.cpAdmin = 1; ACT.toadmin(); }),
+    async d => { if (await sha(d.get('pw')) !== ADMIN_HASH) return '비밀번호가 달라요'; S.admin = true; sessionStorage.cpAdmin = 1; ACT.toadmin(); }),
   enter() { watchClass(); const m = myKey(); S.me = m?.id === cid() ? m.no : null; S.filter = null; go(S.me ? 'room' : 'who'); },
   home() { unsub(); stopPlay(); S.me = null; go('cover'); },
   guest: () => { S.me = null; go('room'); },
