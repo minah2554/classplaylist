@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0e0b14">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="우리반 플리">
 <title>우리반 플레이리스트</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Dodum&display=swap" rel="stylesheet">
@@ -14,6 +19,8 @@ body{margin:0;background:radial-gradient(1000px 600px at 50% -10%,#2a1d44,transp
 body.pl{padding-bottom:340px}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
+footer{text-align:center;color:var(--mu);font-size:12px;line-height:1.8;padding:8px 16px 28px}
+footer .sep{margin:0 8px;opacity:.5}
 main{max-width:960px;margin:0 auto;padding:20px 16px 40px}
 h1,h2,h3{font-family:'Black Han Sans',sans-serif;font-weight:400;margin:0}
 .ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;color:var(--mu)}
@@ -101,6 +108,7 @@ dialog form{display:flex;flex-direction:column;gap:10px}
 <body>
 <button id="bgm" class="ghost" aria-pressed="false">♪ BGM</button>
 <div id="app"></div>
+<footer>© 2026 MINARI STUDIO. All rights reserved.<span class="sep">|</span>Class Playlist Web App v1.0<br></footer>
 <div id="dock"><div class="vid"><div id="yt"></div></div>
  <div class="np"><b id="npt"></b><button class="ghost" data-act="prev" aria-label="이전">◀◀</button><button class="ghost" data-act="next" aria-label="다음">▶▶</button><button class="ghost" data-act="stop" aria-label="닫기">✕</button></div></div>
 <dialog id="dlg"><form id="f"></form></dialog>
