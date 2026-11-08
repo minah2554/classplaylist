@@ -69,10 +69,12 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--b);outline-offse
 /* roster cards */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:16px}
 .card .who,.card .tags,.card .empty{padding:0 4px}
-.like{display:inline-flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--mu);font-size:14px}
-.like:hover:not(:disabled){color:var(--tx);border-color:var(--mu)}
-.like:disabled{cursor:default;border-color:transparent;padding-left:0;padding-right:0}
-.like.on{color:#ff6b86;border-color:#ff6b8666}
+.who-row{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%}
+.card:has(.has) .tags{justify-content:flex-start;width:100%}
+.like{display:inline-flex;align-items:center;gap:4px;background:none;border:0;border-radius:10px;padding:4px 8px;min-height:36px;color:var(--mu);font-size:14px}
+.like:hover:not(:disabled){color:var(--tx)}
+.like:disabled{cursor:default}
+.like.on{color:#ff6b86}
 .like.on svg{fill:currentColor}
 .like.pop svg{animation:pop .4s ease-out}
 @keyframes pop{40%{transform:scale(1.5)}}
@@ -119,7 +121,7 @@ dialog form{display:flex;flex-direction:column;gap:10px}
 <body>
 <button id="bgm" class="ghost" aria-pressed="false" aria-label="BGM"></button>
 <div id="app"></div>
-<footer><span>© 2026 MINARI STUDIO. All rights reserved.</span><span class="sep">|</span><span>Class Playlist Web App v1.7</span><br></footer>
+<footer><span>© 2026 MINARI STUDIO. All rights reserved.</span><span class="sep">|</span><span>Class Playlist Web App v1.8</span><br></footer>
 <div id="dock"><div class="vid"><div id="yt"></div></div>
  <div class="np"><b id="npt"></b><button class="ghost ic" data-act="prev" aria-label="이전"></button><button class="ghost ic" data-act="next" aria-label="다음"></button><button class="ghost ic" data-act="stop" aria-label="닫기"></button></div></div>
 <dialog id="dlg"><form id="f"></form></dialog>
@@ -253,8 +255,8 @@ const rosterList = () => nums().map(n => { const s = S.students[n]; return `<div
 const likeCount = s => Object.keys(s.likes || {}).filter(k => S.students[k]).length; // 삭제된 학생의 하트는 세지 않음
 function likeBtn(n, s, mine) {
   const k = likeCount(s), liked = !!(S.me && s.likes?.[S.me]);
-  const label = mine ? (k ? `${k}명이 좋아해요` : '아직 하트가 없어요') : `${liked ? '좋아해요' : '나도 좋아해'}${k ? ' · ' + k : ''}`;
-  return `<button class="like ${liked ? 'on' : ''} ${S.pop === n ? 'pop' : ''}" data-act="like" data-no="${esc(n)}" aria-pressed="${liked}" ${mine ? 'disabled' : ''}>${ic(I.heart, 16)}<span>${label}</span></button>`;
+  const label = mine ? `내 노래를 좋아하는 친구 ${k}명` : liked ? '좋아요 취소' : '나도 이 노래 좋아해';
+  return `<button class="like ${liked ? 'on' : ''} ${S.pop === n ? 'pop' : ''}" data-act="like" data-no="${esc(n)}" aria-pressed="${liked}" aria-label="${label}" title="${label}" ${mine ? 'disabled' : ''}>${ic(I.heart, 18)}${k ? `<span>${k}</span>` : ''}</button>`;
 }
 
 function card(n) {
@@ -264,8 +266,7 @@ function card(n) {
     : `<div class="art">${mine ? ic(I.plus, 28) : ''}</div>`;
   return `<div class="card ${mine ? 'mine' : ''}" role="button" tabindex="0" data-act="card" data-no="${esc(n)}">
     <div style="position:relative;width:100%">${art}${s.vid ? `<button class="play" data-act="play" data-no="${esc(n)}" aria-label="재생">${ic(I.play, 16)}</button>` : ''}</div>
-    <div class="who"><small>${esc(n)}</small>${esc(s.name)}</div>
-    ${s.vid ? likeBtn(n, s, mine) : ''}
+    <div class="who-row"><div class="who"><small>${esc(n)}</small>${esc(s.name)}</div>${s.vid ? likeBtn(n, s, mine) : ''}</div>
     ${(s.tags || []).length ? `<div class="tags">${s.tags.map(t => `<span data-act="tag" data-t="${esc(t)}">#${esc(t)}</span>`).join('')}</div>`
       : `<div class="empty">${mine ? '눌러서 노래 올리기' : '아직 비어있어요'}</div>`}</div>`;
 }
