@@ -86,8 +86,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--b);outline-offse
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .row>*{flex:1;min-width:90px}
 .row>button{flex:none}
-.rl div{display:flex;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}
-.rl span{flex:1}
+.rl div{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.rl span{flex:1 1 160px}
 
 /* dock */
 #dock{position:fixed;left:50%;bottom:0;width:min(100%,520px);transform:translate(-50%,110%);transition:transform .3s;background:#000;border-radius:16px 16px 0 0;overflow:hidden;z-index:5;box-shadow:0 -10px 40px #000a}
@@ -111,7 +111,7 @@ dialog form{display:flex;flex-direction:column;gap:10px}
 <body>
 <button id="bgm" class="ghost" aria-pressed="false" aria-label="BGM"></button>
 <div id="app"></div>
-<footer>© 2026 MINARI STUDIO. All rights reserved.<span class="sep">|</span>Class Playlist Web App v1.3<br></footer>
+<footer>© 2026 MINARI STUDIO. All rights reserved.<span class="sep">|</span>Class Playlist Web App v1.4<br></footer>
 <div id="dock"><div class="vid"><div id="yt"></div></div>
  <div class="np"><b id="npt"></b><button class="ghost ic" data-act="prev" aria-label="이전"></button><button class="ghost ic" data-act="next" aria-label="다음"></button><button class="ghost ic" data-act="stop" aria-label="닫기"></button></div></div>
 <dialog id="dlg"><form id="f"></form></dialog>
@@ -147,7 +147,8 @@ async function makeStore() {
       setSettings: o => F.setDoc(F.doc(db, 'meta', 'settings'), o),
       watch: (id, cb) => F.onSnapshot(F.doc(db, 'classes', id), d => cb(d.data()?.s || {})),
       patch: (id, no, o) => F.setDoc(F.doc(db, 'classes', id), {s: {[no]: o}}, {merge: true}),
-      remove: (id, no) => F.updateDoc(F.doc(db, 'classes', id), {['s.' + no]: F.deleteField()}).catch(() => {})};
+      remove: (id, no) => F.updateDoc(F.doc(db, 'classes', id), {['s.' + no]: F.deleteField()}).catch(() => {}),
+      clear: id => F.setDoc(F.doc(db, 'classes', id), {s: {}})};
   }
   const get = () => LS('cp-data') || {settings: null, classes: {}};
   const subs = new Set();
@@ -157,7 +158,8 @@ async function makeStore() {
     setSettings: async o => save({...get(), settings: o}),
     watch(id, cb) { const f = () => cb(get().classes[id] || {}); subs.add(f); f(); return () => subs.delete(f); },
     patch: async (id, no, o) => { const d = get(); const c = d.classes[id] ||= {}; c[no] = {...c[no], ...o}; save(d); },
-    remove: async (id, no) => { const d = get(); delete (d.classes[id] || {})[no]; save(d); }};
+    remove: async (id, no) => { const d = get(); delete (d.classes[id] || {})[no]; save(d); },
+    clear: async id => { const d = get(); delete d.classes[id]; save(d); }};
 }
 const store = await makeStore();
 
@@ -223,12 +225,12 @@ const views = {
     <div class="panel"><h3>명단 · 플레이리스트</h3>${selects()}
       <p class="empty">한 줄에 "학번 이름" (엑셀에서 복사·붙여넣기, CSV/TXT 업로드 가능). 같은 학번은 이름만 수정돼요.</p>
       <textarea id="ro" rows="5" placeholder="1 김하늘&#10;2 이도윤"></textarea>
-      <div class="row" style="margin-top:8px"><input id="rf" type="file" accept=".csv,.txt"><button class="cta" data-act="saveroster">명단 저장</button><button class="ghost" data-act="toroom">이 반 보기·재생</button></div>
+      <div class="row" style="margin-top:8px"><input id="rf" type="file" accept=".csv,.txt"><button class="cta" data-act="saveroster">명단 저장</button><button class="ghost" data-act="toroom">이 반 보기·재생</button><button class="ghost" data-act="resetclass">학급 전체 초기화</button></div>
       <div class="rl" id="rl" style="margin-top:12px">${rosterList()}</div></div></main>`
 };
 
 const rosterList = () => nums().map(n => { const s = S.students[n]; return `<div><span>${esc(n)} ${esc(s.name)} ${s.vid ? '· 노래 있음' : ''} ${s.pin ? '· PIN 설정됨' : ''}</span>
-  <button class="ghost" data-act="pinreset" data-no="${esc(n)}">PIN 초기화</button><button class="ghost" data-act="del" data-no="${esc(n)}">삭제</button></div>`; }).join('') || '<p class="empty">아직 학생이 없어요.</p>';
+  ${s.vid ? `<button class="ghost" data-act="delsong" data-no="${esc(n)}">노래 삭제</button>` : ''}<button class="ghost" data-act="pinreset" data-no="${esc(n)}">PIN 초기화</button><button class="ghost" data-act="del" data-no="${esc(n)}">학생 삭제</button></div>`; }).join('') || '<p class="empty">아직 학생이 없어요.</p>';
 
 function card(n) {
   const s = S.students[n], mine = n === S.me, on = Q?.q[Q.i] === n && dock.classList.contains('on');
@@ -325,7 +327,7 @@ const ACT = {
     ask(`<h3>${esc(S.me)}번 ${esc(s.name)}의 노래</h3><div class="pv" id="pv"></div>
       <input name="url" placeholder="유튜브 링크 붙여넣기" value="${s.vid ? esc(s.url) : ''}">
       <p class="empty">이 노래를 고른 이유를 태그 3개로 남겨요</p>${t(0)}${t(1)}${t(2)}
-      ${btns(s.vid ? '<button type="button" class="ghost" data-act="clearsong">삭제</button>' : '')}`,
+      ${btns(s.vid ? '<button type="button" class="ghost" data-act="clearsong">노래 삭제</button>' : '')}`,
       async d => { const url = d.get('url').trim(), v = vidOf(url);
         if (!v) return '유튜브 링크가 아닌 것 같아요';
         const tags = [0, 1, 2].map(i => d.get('t' + i).replace(/^#+/, '').trim());
@@ -354,7 +356,13 @@ const ACT = {
     $('#ro').value = ''; toast(`${rows.length}명 저장했어요`);
   },
   pinreset: d => store.patch(cid(), d.no, {pin: ''}).then(() => toast('PIN을 초기화했어요')),
-  del: d => confirm(`${d.no}번 ${S.students[d.no].name} 학생을 삭제할까요? (노래도 함께 삭제)`) && store.remove(cid(), d.no)
+  delsong: d => confirm(`${d.no}번 ${S.students[d.no].name} 학생의 노래와 태그만 삭제할까요? (학생 명단은 그대로)`) && store.patch(cid(), d.no, {url: '', vid: '', tags: []}),
+  del: d => confirm(`${d.no}번 ${S.students[d.no].name} 학생을 명단에서 삭제할까요? (노래·PIN도 함께 삭제)`) && store.remove(cid(), d.no),
+  async resetclass() {
+    const n = nums().length, name = `${S.sel.y}년 ${S.sel.g}학년 ${S.sel.c}반`;
+    if (!confirm(`${name}을(를) 전체 초기화할까요?\n학생 ${n}명의 명단, PIN, 노래, 태그가 모두 삭제되고 되돌릴 수 없어요.`)) return;
+    stopPlay(); await store.clear(cid()); toast('초기화했어요');
+  }
 };
 document.addEventListener('click', e => { const b = e.target.closest('[data-act]'); b && ACT[b.dataset.act]?.(b.dataset); });
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('.card')) e.target.click(); });
