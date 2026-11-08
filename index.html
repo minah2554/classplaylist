@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0e0b14">
+<title>우리반 플레이리스트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0b14;--card:#1a1624;--line:#2e2740;--tx:#f4efe9;--mu:#9a93a8;--a:#ff7a5c;--b:#b79cff}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1000px 600px at 50% -10%,#2a1d44,transparent),var(--bg);color:var(--tx);font:16px/1.5 'Gowun Dodum',system-ui,sans-serif;min-height:100vh}
+body.pl{padding-bottom:340px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+main{max-width:960px;margin:0 auto;padding:20px 16px 40px}
+h1,h2,h3{font-family:'Black Han Sans',sans-serif;font-weight:400;margin:0}
+.ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;color:var(--mu)}
+.ghost:hover{color:var(--tx);border-color:var(--b)}
+.cta{background:linear-gradient(135deg,var(--a),var(--b));border:0;border-radius:999px;padding:12px 28px;color:#14101c;font-weight:700}
+input,select,textarea{background:#120e1b;border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--b);outline-offset:1px}
+
+/* cover */
+.cover{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding-top:28px}
+.disc{width:min(70vw,320px);aspect-ratio:1;border-radius:50%;border:0;padding:0;position:relative;cursor:pointer;
+ background:conic-gradient(from 30deg,transparent,rgba(255,255,255,.16) 10%,transparent 25%,transparent 50%,rgba(255,255,255,.16) 60%,transparent 75%),repeating-radial-gradient(circle,#0b0910 0 2px,#1b1726 3px 4px);
+ box-shadow:0 20px 60px #000a,0 0 0 6px #14101c;animation:spin 16s linear infinite}
+.disc::before{content:"";position:absolute;inset:32%;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b))}
+.disc::after{content:"";position:absolute;inset:47%;border-radius:50%;background:var(--bg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cover h1{font-size:clamp(34px,9vw,56px);line-height:1.1}
+.cover h1 em{font-style:normal;background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover p{color:var(--mu);margin:0}
+.sel{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;max-width:440px}
+.sel select{flex:1;min-width:100px}
+.note{font-size:13px;color:var(--a)}
+
+/* top bar */
+.bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.bar h2{font-size:24px;flex:1;min-width:160px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px;color:var(--b)}
+.chip.on{background:var(--b);color:#14101c}
+
+/* roster cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 12px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;cursor:pointer;color:inherit}
+.card.mine{border-color:var(--a);box-shadow:0 0 0 1px var(--a) inset}
+.art{width:100%;aspect-ratio:1;border-radius:50%;position:relative;overflow:hidden;background:#120e1b;display:grid;place-items:center;border:2px dashed var(--line);color:var(--mu);font-size:28px}
+.art img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.has{border:0}
+.art.on{animation:spin 6s linear infinite}
+.hole{position:absolute;inset:44%;border-radius:50%;background:var(--card)}
+.play{position:absolute;right:2px;bottom:2px;width:34px;height:34px;border-radius:50%;border:0;background:var(--a);color:#14101c;z-index:2}
+.who{font-weight:700}.who small{color:var(--mu);font-weight:400;margin-right:4px}
+.tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;font-size:13px;color:var(--b)}
+.tags span{cursor:pointer}
+.empty{color:var(--mu);font-size:13px}
+
+/* admin */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:16px}
+.panel h3{margin-bottom:10px;font-size:20px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1;min-width:90px}
+.row>button{flex:none}
+.rl div{display:flex;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}
+.rl span{flex:1}
+
+/* dock */
+#dock{position:fixed;left:50%;bottom:0;width:min(100%,520px);transform:translate(-50%,110%);transition:transform .3s;background:#000;border-radius:18px 18px 0 0;overflow:hidden;z-index:5;box-shadow:0 -10px 40px #000a}
+#dock.on{transform:translate(-50%,0)}
+.vid{aspect-ratio:16/9;width:100%}
+.vid iframe{width:100%;height:100%}
+.np{display:flex;gap:8px;align-items:center;padding:10px 12px;background:var(--card)}
+.np b{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* dialog */
+dialog{background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:20px;padding:20px;width:min(92vw,400px)}
+dialog::backdrop{background:#000b}
+dialog form{display:flex;flex-direction:column;gap:10px}
+.pv{aspect-ratio:16/9;border-radius:12px;background:#120e1b center/cover;display:none}
+.pv.on{display:block}
+.err{color:var(--a);min-height:1.2em;margin:0;font-size:14px}
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 18px;border-radius:999px;z-index:9;display:none}
+@media(prefers-reduced-motion:reduce){.disc,.art.on{animation:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="dock"><div class="vid"><div id="yt"></div></div>
+ <div class="np"><b id="npt"></b><button class="ghost" data-act="prev" aria-label="이전">◀◀</button><button class="ghost" data-act="next" aria-label="다음">▶▶</button><button class="ghost" data-act="stop" aria-label="닫기">✕</button></div></div>
+<dialog id="dlg"><form id="f"></form></dialog>
+<div id="toast" role="status"></div>
+
+<script src="firebase-config.js"></script>
+<script type="module">
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const vidOf = u => (String(u).match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([\w-]{11})/) || [])[1];
+const byNo = (a, b) => a.localeCompare(b, 'ko', {numeric: true});
+const LS = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); v === null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch { return null; } };
+const ADMIN_PW = 'minah'; // shortcut: 클라이언트 코드에 있어 개발자도구로 볼 수 있음, 민감 데이터가 생기면 서버 인증으로 교체
+
+// ---- storage: Firestore, 설정이 없으면 localStorage 연습 모드 ----
+async function makeStore() {
+  const cfg = window.FIREBASE_CONFIG;
+  if (cfg) {
+    const B = 'https://www.gstatic.com/firebasejs/10.12.2/';
+    const [{initializeApp}, F] = await Promise.all([import(B + 'firebase-app.js'), import(B + 'firebase-firestore.js')]);
+    const db = F.getFirestore(initializeApp(cfg));
+    return {cloud: true,
+      async getSettings() { const d = await F.getDoc(F.doc(db, 'meta', 'settings')); return d.exists() ? d.data() : null; },
+      setSettings: o => F.setDoc(F.doc(db, 'meta', 'settings'), o),
+      watch: (id, cb) => F.onSnapshot(F.doc(db, 'classes', id), d => cb(d.data()?.s || {})),
+      patch: (id, no, o) => F.setDoc(F.doc(db, 'classes', id), {s: {[no]: o}}, {merge: true}),
+      remove: (id, no) => F.updateDoc(F.doc(db, 'classes', id), {['s.' + no]: F.deleteField()}).catch(() => {})};
+  }
+  const get = () => LS('cp-data') || {settings: null, classes: {}};
+  const subs = new Set();
+  const save = d => { LS('cp-data', d); subs.forEach(f => f()); };
+  return {cloud: false,
+    getSettings: async () => get().settings,
+    setSettings: async o => save({...get(), settings: o}),
+    watch(id, cb) { const f = () => cb(get().classes[id] || {}); subs.add(f); f(); return () => subs.delete(f); },
+    patch: async (id, no, o) => { const d = get(); const c = d.classes[id] ||= {}; c[no] = {...c[no], ...o}; save(d); },
+    remove: async (id, no) => { const d = get(); delete (d.classes[id] || {})[no]; save(d); }};
+}
+const store = await makeStore();
+
+// ---- state ----
+const Y = new Date().getFullYear();
+const S = {view: 'cover', admin: !!sessionStorage.cpAdmin, students: {}, me: null, filter: null,
+  settings: {yearFrom: Y - 1, yearTo: Y + 1, grades: 3, classes: 5}, sel: {y: Y, g: 1, c: 1}};
+Object.assign(S.settings, await store.getSettings());
+S.sel.y = Math.min(Math.max(Y, S.settings.yearFrom), S.settings.yearTo);
+const cid = () => `${S.sel.y}-${S.sel.g}-${S.sel.c}`;
+let unsub = () => {};
+function watchClass() {
+  unsub(); S.students = {};
+  unsub = store.watch(cid(), s => { S.students = s; S.view === 'admin' ? ($('#rl') && ($('#rl').innerHTML = rosterList())) : render(); });
+}
+const nums = () => Object.keys(S.students).sort(byNo);
+
+// ---- views ----
+const opts = (a, b, v, f = x => x) => Array.from({length: b - a + 1}, (_, i) => a + i).map(n => `<option value="${n}" ${n == v ? 'selected' : ''}>${f(n)}</option>`).join('');
+const selects = () => `<div class="sel">
+  <select data-sel="y" aria-label="년도">${opts(S.settings.yearFrom, S.settings.yearTo, S.sel.y, n => n + '년')}</select>
+  <select data-sel="g" aria-label="학년">${opts(1, S.settings.grades, S.sel.g, n => n + '학년')}</select>
+  <select data-sel="c" aria-label="반">${opts(1, S.settings.classes, S.sel.c, n => n + '반')}</select></div>`;
+
+const views = {
+  cover: () => `<main class="cover">
+    <button class="disc" data-act="disc" aria-label="관리자 모드"></button>
+    <h1>우리반 <em>PLAYLIST</em></h1>
+    <p>오늘 내 노래, 친구들의 취향</p>
+    ${selects()}
+    <button class="cta" data-act="enter">입장하기</button>
+    ${store.cloud ? '' : '<p class="note">연습 모드: 이 기기에서만 저장돼요 (firebase-config.js 설정 필요)</p>'}</main>`,
+
+  who: () => `<main><div class="bar"><button class="ghost" data-act="home">← 반 바꾸기</button><h2>${S.sel.y} · ${S.sel.g}학년 ${S.sel.c}반</h2></div>
+    <h3 style="margin-bottom:12px">나는 누구?</h3>
+    ${nums().length ? `<div class="grid">${nums().map(n => `<button class="card" data-act="pick" data-no="${esc(n)}"><span class="who"><small>${esc(n)}</small>${esc(S.students[n].name)}</span></button>`).join('')}</div>`
+      : '<p class="empty">선생님이 아직 명단을 올리지 않았어요.</p>'}
+    <p><button class="ghost" data-act="guest">구경만 할래요</button></p></main>`,
+
+  room() {
+    const all = nums(), cnt = {};
+    all.forEach(n => (S.students[n].tags || []).forEach(t => cnt[t] = (cnt[t] || 0) + 1));
+    const list = all.filter(n => !S.filter || (S.students[n].tags || []).includes(S.filter));
+    return `<main><div class="bar"><button class="ghost" data-act="home">← 나가기</button><h2>${S.sel.y} · ${S.sel.g}학년 ${S.sel.c}반</h2>
+      ${S.me ? `<button class="ghost" data-act="logout">${esc(S.me)}번 ${esc(S.students[S.me]?.name)} · 로그아웃</button>` : ''}
+      ${S.admin ? '<button class="cta" data-act="all">순서대로 재생</button><button class="cta" data-act="rand">랜덤 재생</button><button class="ghost" data-act="toadmin">관리자</button>' : ''}</div>
+      <div class="chips">${Object.entries(cnt).sort((a, b) => b[1] - a[1]).map(([t, k]) => `<button class="chip ${S.filter === t ? 'on' : ''}" data-act="tag" data-t="${esc(t)}">#${esc(t)} ${k}</button>`).join('')}</div>
+      <div class="grid">${list.map(card).join('') || '<p class="empty">명단이 비어 있어요.</p>'}</div></main>`;
+  },
+
+  admin: () => `<main><div class="bar"><button class="ghost" data-act="home">← 처음으로</button><h2>관리자 모드</h2><button class="ghost" data-act="adminout">관리자 나가기</button></div>
+    <div class="panel"><h3>범위 설정</h3><div class="row">
+      <label>시작 년도<input id="yf" type="number" value="${S.settings.yearFrom}"></label>
+      <label>끝 년도<input id="yt2" type="number" value="${S.settings.yearTo}"></label>
+      <label>학년 수 (1~3)<select id="gs">${opts(1, 3, S.settings.grades)}</select></label>
+      <label>반 수 (1~5)<select id="cs">${opts(1, 5, S.settings.classes)}</select></label>
+      <button class="cta" data-act="saveset">저장</button></div></div>
+    <div class="panel"><h3>명단 · 플레이리스트</h3>${selects()}
+      <p class="empty">한 줄에 "학번 이름" (엑셀에서 복사·붙여넣기, CSV/TXT 업로드 가능). 같은 학번은 이름만 수정돼요.</p>
+      <textarea id="ro" rows="5" placeholder="1 김하늘&#10;2 이도윤"></textarea>
+      <div class="row" style="margin-top:8px"><input id="rf" type="file" accept=".csv,.txt"><button class="cta" data-act="saveroster">명단 저장</button><button class="ghost" data-act="toroom">이 반 보기·재생</button></div>
+      <div class="rl" id="rl" style="margin-top:12px">${rosterList()}</div></div></main>`
+};
+
+const rosterList = () => nums().map(n => { const s = S.students[n]; return `<div><span>${esc(n)} ${esc(s.name)} ${s.vid ? '· 노래 있음' : ''} ${s.pin ? '· PIN 설정됨' : ''}</span>
+  <button class="ghost" data-act="pinreset" data-no="${esc(n)}">PIN 초기화</button><button class="ghost" data-act="del" data-no="${esc(n)}">삭제</button></div>`; }).join('') || '<p class="empty">아직 학생이 없어요.</p>';
+
+function card(n) {
+  const s = S.students[n], mine = n === S.me, on = Q?.q[Q.i] === n && dock.classList.contains('on');
+  const art = s.vid
+    ? `<div class="art has ${on ? 'on' : ''}"><img src="https://img.youtube.com/vi/${s.vid}/hqdefault.jpg" alt="" loading="lazy"><i class="hole"></i></div>`
+    : `<div class="art">${mine ? '+' : ''}</div>`;
+  return `<div class="card ${mine ? 'mine' : ''}" role="button" tabindex="0" data-act="card" data-no="${esc(n)}">
+    <div style="position:relative;width:100%">${art}${s.vid ? `<button class="play" data-act="play" data-no="${esc(n)}" aria-label="재생">▶</button>` : ''}</div>
+    <div class="who"><small>${esc(n)}</small>${esc(s.name)}</div>
+    ${(s.tags || []).length ? `<div class="tags">${s.tags.map(t => `<span data-act="tag" data-t="${esc(t)}">#${esc(t)}</span>`).join('')}</div>`
+      : `<div class="empty">${mine ? '눌러서 노래 올리기' : '아직 비어있어요'}</div>`}</div>`;
+}
+
+function render() { $('#app').innerHTML = views[S.view](); document.body.classList.toggle('pl', dock.classList.contains('on')); }
+const go = v => { S.view = v; render(); scrollTo(0, 0); };
+const toast = m => { const t = $('#toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = 'none', 2200); };
+
+// ---- dialog helper: handler가 문자열을 돌려주면 오류로 표시, 아니면 닫힘 ----
+const dlg = $('#dlg'), form = $('#f');
+function ask(html, handler) {
+  form.innerHTML = html; form.oninput = null;
+  form.onsubmit = async e => { e.preventDefault(); const m = await handler(new FormData(form)); m ? form.querySelector('.err').textContent = m : dlg.close(); };
+  dlg.showModal();
+}
+const btns = extra => `<p class="err"></p><div class="row"><button type="button" class="ghost" data-act="close">취소</button>${extra || ''}<button class="cta">확인</button></div>`;
+
+// ---- player (YouTube IFrame API) ----
+const dock = $('#dock');
+let yt, ytReady = false, pending, Q = null;
+const tag = document.createElement('script'); tag.src = 'https://www.youtube.com/iframe_api'; document.head.append(tag);
+window.onYouTubeIframeAPIReady = () => {
+  yt = new YT.Player('yt', {width: '100%', height: '100%', playerVars: {playsinline: 1, rel: 0}, events: {
+    onReady: () => { ytReady = true; if (pending) yt.loadVideoById(pending); },
+    onStateChange: e => { if (e.data === 0) playAt(Q.i + 1); },
+    onError: () => { toast('재생할 수 없는 영상이라 넘어갈게요'); playAt(Q.i + 1); }}});
+};
+function startQueue(mode, from) {
+  let q = nums().filter(n => S.students[n].vid);
+  if (!q.length) return toast('아직 올라온 노래가 없어요');
+  if (mode === 'rand') q.sort(() => Math.random() - .5);
+  else if (from) q = q.slice(Math.max(q.indexOf(from), 0));
+  Q = {q, i: 0}; playAt(0);
+}
+function playAt(i) {
+  if (!Q || i < 0 || i >= Q.q.length) return stopPlay();
+  Q.i = i; const n = Q.q[i], s = S.students[n];
+  if (!s?.vid) return playAt(i + 1);
+  dock.classList.add('on'); $('#npt').textContent = `${n}번 ${s.name}  #${(s.tags || []).join(' #')}`;
+  ytReady ? yt.loadVideoById(s.vid) : pending = s.vid;
+  render();
+}
+function stopPlay() { Q = null; pending = null; ytReady && yt.stopVideo(); dock.classList.remove('on'); S.view !== 'cover' && render(); }
+
+// ---- actions ----
+const myKey = () => LS('cp-me');
+const ACT = {
+  disc: () => S.admin ? ACT.toadmin() : ask(`<h3>관리자 모드</h3><input name="pw" type="password" placeholder="비밀번호" autofocus>${btns()}`,
+    d => { if (d.get('pw') !== ADMIN_PW) return '비밀번호가 달라요'; S.admin = true; sessionStorage.cpAdmin = 1; ACT.toadmin(); }),
+  enter() { watchClass(); const m = myKey(); S.me = m?.id === cid() ? m.no : null; S.filter = null; go(S.me ? 'room' : 'who'); },
+  home() { unsub(); stopPlay(); S.me = null; go('cover'); },
+  guest: () => { S.me = null; go('room'); },
+  logout: () => { LS('cp-me', null); S.me = null; go('who'); },
+  pick({no}) {
+    const s = S.students[no], first = !s.pin;
+    ask(`<h3>${esc(no)}번 ${esc(s.name)}</h3><p class="empty">${first ? '처음이에요! 나만 아는 숫자 4자리를 정해요.' : '내 비밀번호 4자리'}</p>
+      <input name="pin" type="password" inputmode="numeric" pattern="\\d{4}" maxlength="4" autocomplete="off" autofocus>${btns()}`,
+      async d => { const p = d.get('pin'); if (!/^\d{4}$/.test(p)) return '숫자 4자리를 입력해요';
+        if (!first && p !== s.pin) return '비밀번호가 달라요 (잊었다면 선생님께)';
+        if (first) await store.patch(cid(), no, {pin: p});
+        LS('cp-me', {id: cid(), no}); S.me = no; go('room'); });
+  },
+  card(d) { d.no === S.me ? ACT.edit() : S.students[d.no]?.vid ? startQueue('order', d.no) : 0; },
+  play: d => startQueue('order', d.no),
+  tag(d) { S.filter = S.filter === d.t ? null : d.t; render(); },
+  edit() {
+    const s = S.students[S.me];
+    const t = i => `<input name="t${i}" maxlength="12" placeholder="#태그${i + 1}" value="${esc((s.tags || [])[i])}">`;
+    ask(`<h3>${esc(S.me)}번 ${esc(s.name)}의 노래</h3><div class="pv" id="pv"></div>
+      <input name="url" placeholder="유튜브 링크 붙여넣기" value="${s.vid ? esc(s.url) : ''}">
+      <p class="empty">이 노래를 고른 이유를 태그 3개로 남겨요</p>${t(0)}${t(1)}${t(2)}
+      ${btns(s.vid ? '<button type="button" class="ghost" data-act="clearsong">삭제</button>' : '')}`,
+      async d => { const url = d.get('url').trim(), v = vidOf(url);
+        if (!v) return '유튜브 링크가 아닌 것 같아요';
+        const tags = [0, 1, 2].map(i => d.get('t' + i).replace(/^#+/, '').trim());
+        if (tags.some(x => !x)) return '태그 3개를 모두 적어주세요';
+        await store.patch(cid(), S.me, {url, vid: v, tags}); toast('저장했어요'); });
+    const pv = () => { const v = vidOf(form.url.value); $('#pv').classList.toggle('on', !!v); $('#pv').style.backgroundImage = v ? `url(https://img.youtube.com/vi/${v}/hqdefault.jpg)` : ''; };
+    form.oninput = pv; pv();
+  },
+  async clearsong() { await store.patch(cid(), S.me, {url: '', vid: '', tags: []}); dlg.close(); },
+  close: () => dlg.close(),
+  all: () => startQueue('order'), rand: () => startQueue('rand'),
+  prev: () => playAt(Q.i - 1), next: () => playAt(Q.i + 1), stop: stopPlay,
+  toadmin: () => { watchClass(); go('admin'); }, toroom() { S.me = null; go('room'); },
+  adminout() { S.admin = false; delete sessionStorage.cpAdmin; go('cover'); },
+  async saveset() {
+    const n = (id, lo, hi) => Math.min(Math.max(parseInt($(id).value) || lo, lo), hi);
+    let a = n('#yf', 2000, 2100), b = n('#yt2', 2000, 2100); if (a > b) [a, b] = [b, a];
+    S.settings = {yearFrom: a, yearTo: b, grades: n('#gs', 1, 3), classes: n('#cs', 1, 5)};
+    S.sel = {y: Math.min(Math.max(S.sel.y, a), b), g: Math.min(S.sel.g, S.settings.grades), c: Math.min(S.sel.c, S.settings.classes)};
+    await store.setSettings(S.settings); watchClass(); render(); toast('저장했어요');
+  },
+  async saveroster() {
+    const rows = $('#ro').value.split(/\r?\n/).map(l => l.trim().split(/[\t,\s]+/)).filter(r => r.length >= 2 && /^\w+$/.test(r[0]));
+    if (!rows.length) return toast('"학번 이름" 형식으로 입력해주세요');
+    await Promise.all(rows.map(([no, ...nm]) => store.patch(cid(), no, {name: nm.join(' ')})));
+    $('#ro').value = ''; toast(`${rows.length}명 저장했어요`);
+  },
+  pinreset: d => store.patch(cid(), d.no, {pin: ''}).then(() => toast('PIN을 초기화했어요')),
+  del: d => confirm(`${d.no}번 ${S.students[d.no].name} 학생을 삭제할까요? (노래도 함께 삭제)`) && store.remove(cid(), d.no)
+};
+document.addEventListener('click', e => { const b = e.target.closest('[data-act]'); b && ACT[b.dataset.act]?.(b.dataset); });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('.card')) e.target.click(); });
+document.addEventListener('change', async e => {
+  const t = e.target;
+  if (t.dataset.sel) { S.sel[t.dataset.sel] = +t.value; if (S.view === 'admin') { watchClass(); render(); } }
+  if (t.id === 'rf' && t.files[0]) {
+    const buf = await t.files[0].arrayBuffer(); let txt = new TextDecoder().decode(buf);
+    if (txt.includes('�')) txt = new TextDecoder('euc-kr').decode(buf); // 엑셀 CSV(CP949) 대응
+    $('#ro').value = txt;
+  }
+});
+render();
+</script>
+</body>
+</html>
