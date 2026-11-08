@@ -24,14 +24,26 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--b);outline-offse
 
 /* cover */
 .cover{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding-top:28px}
-.disc{width:min(70vw,320px);aspect-ratio:1;border-radius:50%;border:0;padding:0;position:relative;cursor:pointer;
- background:conic-gradient(from 30deg,transparent,rgba(255,255,255,.16) 10%,transparent 25%,transparent 50%,rgba(255,255,255,.16) 60%,transparent 75%),repeating-radial-gradient(circle,#0b0910 0 2px,#1b1726 3px 4px);
- box-shadow:0 20px 60px #000a,0 0 0 6px #14101c;animation:spin 16s linear infinite}
+.cover{overflow:hidden}
+.stage{position:relative;width:min(78vw,380px);aspect-ratio:1;display:grid;place-items:center;margin:10px 0 18px}
+.stage>.glow{position:absolute;inset:-14%;border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(255,255,255,.75) 38%,rgba(255,255,255,.25) 58%,transparent 72%);filter:blur(16px);animation:pulse 2.4s ease-in-out infinite}
+.stage>.ring{position:absolute;inset:-2%;border-radius:50%;border:3px solid #fff;box-shadow:0 0 10px #fff,0 0 30px #fff,0 0 70px rgba(255,255,255,.8),inset 0 0 18px #fff;animation:pulse 2.4s ease-in-out infinite reverse}
+.stage>.ring2{position:absolute;inset:-9%;border-radius:50%;border:2px dashed rgba(255,255,255,.7);animation:spin 22s linear infinite reverse}
+@keyframes pulse{50%{transform:scale(1.05);opacity:.75}}
+.nt{position:absolute;bottom:30%;left:var(--x);font-size:var(--s);color:var(--c);text-shadow:0 0 10px var(--c);opacity:0;animation:rise 5.5s var(--d) ease-out infinite;pointer-events:none;z-index:2}
+@keyframes rise{0%{transform:translate(0,0) rotate(-12deg) scale(.6);opacity:0}15%{opacity:1}100%{transform:translate(var(--dx),-330px) rotate(22deg) scale(1.1);opacity:0}}
+.disc{width:100%;aspect-ratio:1;border-radius:50%;border:0;padding:0;position:relative;cursor:pointer;z-index:1;
+ background:conic-gradient(from 30deg,transparent,rgba(255,255,255,.22) 10%,transparent 25%,transparent 50%,rgba(255,255,255,.22) 60%,transparent 75%),repeating-radial-gradient(circle,#0b0910 0 2px,#1b1726 3px 4px);
+ box-shadow:0 0 0 6px #14101c,0 0 0 9px rgba(255,255,255,.9);animation:spin 7s linear infinite}
+.disc:hover{animation-duration:2.5s}
 .disc::before{content:"";position:absolute;inset:32%;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b))}
 .disc::after{content:"";position:absolute;inset:47%;border-radius:50%;background:var(--bg)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .cover h1{font-size:clamp(34px,9vw,56px);line-height:1.1}
-.cover h1 em{font-style:normal;background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover h1 em{font-style:normal;background:linear-gradient(90deg,var(--a),var(--b),#7ee8fa,var(--a));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
+@keyframes shine{to{background-position:300% 0}}
+#bgm{position:fixed;top:12px;right:12px;z-index:6;background:#0e0b14cc}
+#bgm.on{color:#fff;border-color:#fff;box-shadow:0 0 12px #fff8}
 .cover p{color:var(--mu);margin:0}
 .sel{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;max-width:440px}
 .sel select{flex:1;min-width:100px}
@@ -50,9 +62,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--b);outline-offse
 .card.mine{border-color:var(--a);box-shadow:0 0 0 1px var(--a) inset}
 .art{width:100%;aspect-ratio:1;border-radius:50%;position:relative;overflow:hidden;background:#120e1b;display:grid;place-items:center;border:2px dashed var(--line);color:var(--mu);font-size:28px}
 .art img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.has{border:0}
-.art.on{animation:spin 6s linear infinite}
-.hole{position:absolute;inset:44%;border-radius:50%;background:var(--card)}
+.art.has{border:0;border-radius:12px;aspect-ratio:16/9;background:#000}
+.art.has.on{box-shadow:0 0 0 3px var(--a),0 0 18px var(--a)}
 .play{position:absolute;right:2px;bottom:2px;width:34px;height:34px;border-radius:50%;border:0;background:var(--a);color:#14101c;z-index:2}
 .who{font-weight:700}.who small{color:var(--mu);font-weight:400;margin-right:4px}
 .tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;font-size:13px;color:var(--b)}
@@ -84,10 +95,11 @@ dialog form{display:flex;flex-direction:column;gap:10px}
 .pv.on{display:block}
 .err{color:var(--a);min-height:1.2em;margin:0;font-size:14px}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 18px;border-radius:999px;z-index:9;display:none}
-@media(prefers-reduced-motion:reduce){.disc,.art.on{animation:none}}
+@media(prefers-reduced-motion:reduce){.disc,.glow,.ring,.ring2,.nt,.cover h1 em{animation:none}}
 </style>
 </head>
 <body>
+<button id="bgm" class="ghost" aria-pressed="false">♪ BGM</button>
 <div id="app"></div>
 <div id="dock"><div class="vid"><div id="yt"></div></div>
  <div class="np"><b id="npt"></b><button class="ghost" data-act="prev" aria-label="이전">◀◀</button><button class="ghost" data-act="next" aria-label="다음">▶▶</button><button class="ghost" data-act="stop" aria-label="닫기">✕</button></div></div>
@@ -154,7 +166,10 @@ const selects = () => `<div class="sel">
 
 const views = {
   cover: () => `<main class="cover">
-    <button class="disc" data-act="disc" aria-label="관리자 모드"></button>
+    <div class="stage"><i class="glow"></i><i class="ring"></i><i class="ring2"></i>
+      ${[['4%','-40','28px','#ff7a5c',0],['18%','30','22px','#b79cff',.9],['34%','-20','34px','#7ee8fa',1.8],['62%','40','26px','#ff7a5c',2.6],['76%','-30','30px','#b79cff',3.4],['90%','20','24px','#7ee8fa',4.2],['48%','0','20px','#fff',.4],['10%','50','24px','#fff',2.2]]
+        .map(([x, dx, s, c, d], i) => `<span class="nt" aria-hidden="true" style="--x:${x};--dx:${dx}px;--s:${s};--c:${c};--d:${d}s">${'♪♫♬♩'[i % 4]}</span>`).join('')}
+      <button class="disc" data-act="disc" aria-label="관리자 모드"></button></div>
     <h1>우리반 <em>PLAYLIST</em></h1>
     <p>오늘 내 노래, 친구들의 취향</p>
     ${selects()}
@@ -198,7 +213,7 @@ const rosterList = () => nums().map(n => { const s = S.students[n]; return `<div
 function card(n) {
   const s = S.students[n], mine = n === S.me, on = Q?.q[Q.i] === n && dock.classList.contains('on');
   const art = s.vid
-    ? `<div class="art has ${on ? 'on' : ''}"><img src="https://img.youtube.com/vi/${s.vid}/hqdefault.jpg" alt="" loading="lazy"><i class="hole"></i></div>`
+    ? `<div class="art has ${on ? 'on' : ''}"><img src="https://i.ytimg.com/vi/${s.vid}/mqdefault.jpg" alt="" loading="lazy"></div>`
     : `<div class="art">${mine ? '+' : ''}</div>`;
   return `<div class="card ${mine ? 'mine' : ''}" role="button" tabindex="0" data-act="card" data-no="${esc(n)}">
     <div style="position:relative;width:100%">${art}${s.vid ? `<button class="play" data-act="play" data-no="${esc(n)}" aria-label="재생">▶</button>` : ''}</div>
@@ -219,6 +234,56 @@ function ask(html, handler) {
   dlg.showModal();
 }
 const btns = extra => `<p class="err"></p><div class="row"><button type="button" class="ghost" data-act="close">취소</button>${extra || ''}<button class="cta">확인</button></div>`;
+
+// ---- BGM: WebAudio로 만든 로파이 루프 (파일·저작권 없음). 유튜브 재생 중엔 자동 정지 ----
+const BGM = (() => {
+  let ctx, out, timer, want = LS('cp-bgm') !== false, ducked = false, armed = false;
+  const hz = m => 440 * 2 ** ((m - 69) / 12), BPM = 76, beat = 60 / BPM;
+  const chords = [[57, 60, 64, 67], [53, 57, 60, 64], [48, 52, 55, 59], [55, 59, 62, 64]];
+  const tone = (m, t, d, type, g) => {
+    const o = ctx.createOscillator(), e = ctx.createGain();
+    o.type = type; o.frequency.value = hz(m);
+    e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g, t + 0.03); e.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(e).connect(out); o.start(t); o.stop(t + d + 0.05);
+  };
+  const noise = (t, g) => { // 하이햇
+    const b = ctx.createBuffer(1, ctx.sampleRate * 0.05, ctx.sampleRate), x = b.getChannelData(0);
+    for (let i = 0; i < x.length; i++) x[i] = Math.random() * 2 - 1;
+    const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), e = ctx.createGain();
+    s.buffer = b; f.type = 'highpass'; f.frequency.value = 7000;
+    e.gain.setValueAtTime(g, t); e.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    s.connect(f).connect(e).connect(out); s.start(t);
+  };
+  const kick = t => {
+    const o = ctx.createOscillator(), e = ctx.createGain();
+    o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.15);
+    e.gain.setValueAtTime(0.9, t); e.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+    o.connect(e).connect(out); o.start(t); o.stop(t + 0.3);
+  };
+  let bar = 0;
+  const schedule = () => {
+    const t0 = Math.max(ctx.currentTime + 0.05, schedule.next || 0), c = chords[bar++ % 4];
+    c.forEach(m => tone(m - 12, t0, beat * 4, 'triangle', 0.09));             // 패드
+    for (let i = 0; i < 8; i++) {                                              // 아르페지오
+      tone(c[[0, 2, 1, 3, 2, 1, 3, 2][i]] + 12, t0 + i * beat / 2, beat * 1.2, 'sine', 0.12);
+      if (i % 2) noise(t0 + i * beat / 2, 0.05);
+    }
+    kick(t0); kick(t0 + beat * 2); kick(t0 + beat * 2.5);
+    schedule.next = t0 + beat * 4;
+  };
+  const sync = () => {
+    const btn = $('#bgm'); btn.classList.toggle('on', want); btn.setAttribute('aria-pressed', want); btn.textContent = want ? '♪ BGM 켜짐' : '♪ BGM 꺼짐';
+    if (!armed) return;
+    if (want && !ducked) {
+      if (!ctx) { ctx = new AudioContext(); const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200; out = ctx.createGain(); out.gain.value = 0.35; out.connect(lp).connect(ctx.destination); }
+      ctx.resume(); if (!timer) { schedule.next = 0; schedule(); timer = setInterval(schedule, beat * 4000 - 40); }
+    } else if (ctx) { clearInterval(timer); timer = null; ctx.suspend(); }
+  };
+  $('#bgm').onclick = () => { want = !want; LS('cp-bgm', want); armed = true; sync(); };
+  addEventListener('pointerdown', () => { if (!armed) { armed = true; sync(); } }, {once: true}); // 브라우저 정책상 첫 터치 후 재생
+  sync();
+  return {duck: v => { ducked = v; sync(); }};
+})();
 
 // ---- player (YouTube IFrame API) ----
 const dock = $('#dock');
@@ -241,11 +306,11 @@ function playAt(i) {
   if (!Q || i < 0 || i >= Q.q.length) return stopPlay();
   Q.i = i; const n = Q.q[i], s = S.students[n];
   if (!s?.vid) return playAt(i + 1);
-  dock.classList.add('on'); $('#npt').textContent = `${n}번 ${s.name}  #${(s.tags || []).join(' #')}`;
+  BGM.duck(true); dock.classList.add('on'); $('#npt').textContent = `${n}번 ${s.name}  #${(s.tags || []).join(' #')}`;
   ytReady ? yt.loadVideoById(s.vid) : pending = s.vid;
   render();
 }
-function stopPlay() { Q = null; pending = null; ytReady && yt.stopVideo(); dock.classList.remove('on'); S.view !== 'cover' && render(); }
+function stopPlay() { BGM.duck(false); Q = null; pending = null; ytReady && yt.stopVideo(); dock.classList.remove('on'); S.view !== 'cover' && render(); }
 
 // ---- actions ----
 const myKey = () => LS('cp-me');
@@ -280,7 +345,7 @@ const ACT = {
         const tags = [0, 1, 2].map(i => d.get('t' + i).replace(/^#+/, '').trim());
         if (tags.some(x => !x)) return '태그 3개를 모두 적어주세요';
         await store.patch(cid(), S.me, {url, vid: v, tags}); toast('저장했어요'); });
-    const pv = () => { const v = vidOf(form.url.value); $('#pv').classList.toggle('on', !!v); $('#pv').style.backgroundImage = v ? `url(https://img.youtube.com/vi/${v}/hqdefault.jpg)` : ''; };
+    const pv = () => { const v = vidOf(form.url.value); $('#pv').classList.toggle('on', !!v); $('#pv').style.backgroundImage = v ? `url(https://i.ytimg.com/vi/${v}/mqdefault.jpg)` : ''; };
     form.oninput = pv; pv();
   },
   async clearsong() { await store.patch(cid(), S.me, {url: '', vid: '', tags: []}); dlg.close(); },
