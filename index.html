@@ -133,8 +133,10 @@ const store = await makeStore();
 const Y = new Date().getFullYear();
 const S = {view: 'cover', admin: !!sessionStorage.cpAdmin, students: {}, me: null, filter: null,
   settings: {yearFrom: Y - 1, yearTo: Y + 1, grades: 3, classes: 5}, sel: {y: Y, g: 1, c: 1}};
-Object.assign(S.settings, await store.getSettings());
-S.sel.y = Math.min(Math.max(Y, S.settings.yearFrom), S.settings.yearTo);
+const clampYear = () => S.sel.y = Math.min(Math.max(Y, S.settings.yearFrom), S.settings.yearTo);
+clampYear();
+// 화면을 먼저 띄우고 설정은 뒤늦게 반영 (DB 오류·오프라인이어도 앱은 열림)
+store.getSettings().then(s => { if (s) { Object.assign(S.settings, s); clampYear(); if (S.view === 'cover') render(); } }).catch(e => console.warn('settings', e));
 const cid = () => `${S.sel.y}-${S.sel.g}-${S.sel.c}`;
 let unsub = () => {};
 function watchClass() {

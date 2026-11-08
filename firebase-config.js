@@ -1,3 +1,9 @@
-// Firebase 콘솔 > 프로젝트 설정 > 내 앱(웹)에서 복사한 firebaseConfig 객체를 아래 null 대신 붙여넣으세요.
-// null이면 이 기기 브라우저에만 저장되는 연습 모드로 동작합니다.
-window.FIREBASE_CONFIG = null;
+// Firebase 웹 설정값 (공개되어도 되는 값). 접근 제어는 Firestore 규칙으로 합니다.
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB2u8jepYak5aXCBpitkGX37MgYmSRNgRc",
+  authDomain: "classplaylist-18bc6.firebaseapp.com",
+  projectId: "classplaylist-18bc6",
+  storageBucket: "classplaylist-18bc6.firebasestorage.app",
+  messagingSenderId: "58693556180",
+  appId: "1:58693556180:web:661dc84719805360e6a841"
+};
