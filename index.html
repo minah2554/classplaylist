@@ -16,11 +16,13 @@
 :root{--bg:#0e0b14;--card:#1a1624;--line:#2e2740;--tx:#f4efe9;--mu:#9a93a8;--a:#ff7a5c;--b:#b79cff}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(1000px 600px at 50% -10%,#2a1d44,transparent),var(--bg);color:var(--tx);font:16px/1.5 'Gowun Dodum',system-ui,sans-serif;min-height:100vh}
-body.pl{padding-bottom:340px}
+body.pl{padding-bottom:380px}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 footer{text-align:center;color:var(--mu);font-size:12px;line-height:1.8;padding:8px 16px 28px}
 footer .sep{margin:0 8px;opacity:.5}
+footer span:not(.sep){display:inline-block}
+@media(max-width:640px){footer .sep{display:none}footer span:not(.sep){display:block}}
 main{max-width:960px;margin:0 auto;padding:56px 16px 40px}
 .i{stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block}
 .ghost.ic{padding:8px;display:inline-grid;place-items:center}
@@ -105,13 +107,12 @@ dialog form{display:flex;flex-direction:column;gap:10px}
 .pv.on{display:block}
 .err{color:var(--a);min-height:1.2em;margin:0;font-size:14px}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 16px;border-radius:12px;z-index:9;display:none}
-@media(prefers-reduced-motion:reduce){.disc,.glow,.ring,.ring2,.nt,.cover h1 em{animation:none}}
 </style>
 </head>
 <body>
 <button id="bgm" class="ghost" aria-pressed="false" aria-label="BGM"></button>
 <div id="app"></div>
-<footer>© 2026 MINARI STUDIO. All rights reserved.<span class="sep">|</span>Class Playlist Web App v1.5<br></footer>
+<footer><span>© 2026 MINARI STUDIO. All rights reserved.</span><span class="sep">|</span><span>Class Playlist Web App v1.6</span><br></footer>
 <div id="dock"><div class="vid"><div id="yt"></div></div>
  <div class="np"><b id="npt"></b><button class="ghost ic" data-act="prev" aria-label="이전"></button><button class="ghost ic" data-act="next" aria-label="다음"></button><button class="ghost ic" data-act="stop" aria-label="닫기"></button></div></div>
 <dialog id="dlg"><form id="f"></form></dialog>
@@ -177,7 +178,10 @@ const cid = () => `${S.sel.y}-${S.sel.g}-${S.sel.c}`;
 let unsub = () => {};
 function watchClass() {
   unsub(); S.students = {};
-  unsub = store.watch(cid(), s => { S.students = s; S.view === 'admin' ? ($('#rl') && ($('#rl').innerHTML = rosterList())) : render(); });
+  unsub = store.watch(cid(), s => {
+    // 선생님이 학생을 삭제하거나 PIN을 초기화하면 그 기기의 로그인도 풀어서 오류·남의 칸 수정을 막음
+    if (S.me && !s[S.me]?.pin) { LS('cp-me', null); S.me = null; }
+    S.students = s; S.view === 'admin' ? ($('#rl') && ($('#rl').innerHTML = rosterList())) : render(); });
 }
 const nums = () => Object.keys(S.students).sort(byNo);
 
@@ -209,6 +213,7 @@ const views = {
   room() {
     const all = nums(), cnt = {};
     all.forEach(n => (S.students[n].tags || []).forEach(t => cnt[t] = (cnt[t] || 0) + 1));
+    if (S.filter && !cnt[S.filter]) S.filter = null; // 태그가 사라지면 필터도 해제
     const list = all.filter(n => !S.filter || (S.students[n].tags || []).includes(S.filter));
     return `<main><div class="bar"><button class="ghost" data-act="home">← 나가기</button><h2>${S.sel.y} · ${S.sel.g}학년 ${S.sel.c}반</h2>
       ${S.me ? `<button class="ghost" data-act="logout">${esc(S.me)}번 ${esc(S.students[S.me]?.name)} · 로그아웃</button>` : ''}
@@ -261,7 +266,7 @@ const btns = extra => `<p class="err"></p><div class="row"><button type="button"
 
 // ---- BGM: Candy_Sky_Pursuit.mp3 반복 재생. 유튜브 재생 중엔 자동 정지 ----
 const BGM = (() => {
-  const au = new Audio('Candy_Sky_Pursuit.mp3'); au.loop = true; au.volume = 0.2; // 배경음 크기 (0~1)
+  const au = new Audio('Candy_Sky_Pursuit.mp3'); au.loop = true; au.preload = 'none'; au.volume = 0.2; // 배경음 크기 (0~1)
   let want = LS('cp-bgm') !== false, ducked = false, armed = false;
   const sync = () => {
     const btn = $('#bgm'); btn.classList.toggle('on', want); btn.setAttribute('aria-pressed', want);
@@ -282,8 +287,8 @@ const tag = document.createElement('script'); tag.src = 'https://www.youtube.com
 window.onYouTubeIframeAPIReady = () => {
   yt = new YT.Player('yt', {width: '100%', height: '100%', playerVars: {playsinline: 1, rel: 0}, events: {
     onReady: () => { ytReady = true; if (pending) yt.loadVideoById(pending); },
-    onStateChange: e => { if (e.data === 0) playAt(Q.i + 1); },
-    onError: () => { toast('재생할 수 없는 영상이라 넘어갈게요'); playAt(Q.i + 1); }}});
+    onStateChange: e => { if (e.data === 0 && Q) playAt(Q.i + 1); },
+    onError: () => { if (!Q) return; toast('재생할 수 없는 영상이라 넘어갈게요'); playAt(Q.i + 1); }}});
 };
 function startQueue(mode, from) {
   let q = nums().filter(n => S.students[n].vid);
@@ -324,7 +329,7 @@ const ACT = {
   play: d => startQueue('order', d.no),
   tag(d) { S.filter = S.filter === d.t ? null : d.t; render(); },
   edit() {
-    const s = S.students[S.me];
+    const s = S.students[S.me]; if (!s) return;
     const t = i => `<input name="t${i}" maxlength="12" placeholder="#태그${i + 1}" value="${esc((s.tags || [])[i])}">`;
     ask(`<h3>${esc(S.me)}번 ${esc(s.name)}의 노래</h3><div class="pv" id="pv"></div>
       <input name="url" placeholder="유튜브 링크 붙여넣기" value="${s.vid ? esc(s.url) : ''}">
