@@ -21,36 +21,37 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 footer{text-align:center;color:var(--mu);font-size:12px;line-height:1.8;padding:8px 16px 28px}
 footer .sep{margin:0 8px;opacity:.5}
-main{max-width:960px;margin:0 auto;padding:20px 16px 40px}
+main{max-width:960px;margin:0 auto;padding:56px 16px 40px}
+.i{stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block}
+.ghost.ic{padding:8px;display:inline-grid;place-items:center}
 h1,h2,h3{font-family:'Black Han Sans',sans-serif;font-weight:400;margin:0}
-.ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;color:var(--mu)}
+.ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:8px 16px;color:var(--mu)}
 .ghost:hover{color:var(--tx);border-color:var(--b)}
-.cta{background:linear-gradient(135deg,var(--a),var(--b));border:0;border-radius:999px;padding:12px 28px;color:#14101c;font-weight:700}
-input,select,textarea{background:#120e1b;border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+.cta{background:linear-gradient(135deg,var(--a),var(--b));border:0;border-radius:12px;padding:12px 28px;color:#14101c;font-weight:700}
+input,select,textarea{background:#120e1b;border:1px solid var(--line);border-radius:10px;padding:12px;width:100%}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--b);outline-offset:1px}
 
 /* cover */
-.cover{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding-top:28px}
+.cover{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
 .cover{overflow:hidden}
-.stage{position:relative;width:min(78vw,380px);aspect-ratio:1;display:grid;place-items:center;margin:10px 0 18px}
+.stage{position:relative;width:min(78vw,380px);aspect-ratio:1;display:grid;place-items:center;margin:8px 0 20px}
 .stage>.glow{position:absolute;inset:-14%;border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(255,255,255,.75) 38%,rgba(255,255,255,.25) 58%,transparent 72%);filter:blur(16px);animation:pulse 2.4s ease-in-out infinite}
 .stage>.ring{position:absolute;inset:-2%;border-radius:50%;border:3px solid #fff;box-shadow:0 0 10px #fff,0 0 30px #fff,0 0 70px rgba(255,255,255,.8),inset 0 0 18px #fff;animation:pulse 2.4s ease-in-out infinite reverse}
 .stage>.ring2{position:absolute;inset:-9%;border-radius:50%;border:2px dashed rgba(255,255,255,.7);animation:spin 22s linear infinite reverse}
-@keyframes pulse{50%{transform:scale(1.05);opacity:.75}}
-.nt{position:absolute;bottom:30%;left:var(--x);font-size:var(--s);color:var(--c);text-shadow:0 0 10px var(--c);opacity:0;animation:rise 5.5s var(--d) ease-out infinite;pointer-events:none;z-index:2}
+@keyframes pulse{50%{transform:scale(1.03);opacity:.85}}
+.nt{position:absolute;bottom:30%;left:var(--x);font-size:var(--s);color:var(--c);text-shadow:0 0 10px var(--c);opacity:0;animation:rise 7s var(--d) ease-out infinite;pointer-events:none;z-index:2}
 @keyframes rise{0%{transform:translate(0,0) rotate(-12deg) scale(.6);opacity:0}15%{opacity:1}100%{transform:translate(var(--dx),-330px) rotate(22deg) scale(1.1);opacity:0}}
 .disc{width:100%;aspect-ratio:1;border-radius:50%;border:0;padding:0;position:relative;cursor:pointer;z-index:1;
  background:conic-gradient(from 30deg,transparent,rgba(255,255,255,.22) 10%,transparent 25%,transparent 50%,rgba(255,255,255,.22) 60%,transparent 75%),repeating-radial-gradient(circle,#0b0910 0 2px,#1b1726 3px 4px);
- box-shadow:0 0 0 6px #14101c,0 0 0 9px rgba(255,255,255,.9);animation:spin 7s linear infinite}
-.disc:hover{animation-duration:2.5s}
+ box-shadow:0 0 0 6px #14101c,0 0 0 9px rgba(255,255,255,.9);animation:spin 12s linear infinite}
+.disc:hover{animation-duration:6s}
 .disc::before{content:"";position:absolute;inset:32%;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b))}
 .disc::after{content:"";position:absolute;inset:47%;border-radius:50%;background:var(--bg)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .cover h1{font-size:clamp(34px,9vw,56px);line-height:1.1}
-.cover h1 em{font-style:normal;background:linear-gradient(90deg,var(--a),var(--b),#7ee8fa,var(--a));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
-@keyframes shine{to{background-position:300% 0}}
-#bgm{position:fixed;top:12px;right:12px;z-index:6;background:#0e0b14cc}
-#bgm.on{color:#fff;border-color:#fff;box-shadow:0 0 12px #fff8}
+.cover h1 em{font-style:normal;background:linear-gradient(90deg,var(--a),var(--b),#7ee8fa,var(--a));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent}
+#bgm{position:fixed;top:12px;right:12px;z-index:6;width:40px;height:40px;padding:0;display:grid;place-items:center;background:#0e0b14cc}
+#bgm.on{color:var(--tx);border-color:var(--mu)}
 .cover p{color:var(--mu);margin:0}
 .sel{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;max-width:440px}
 .sel select{flex:1;min-width:100px}
@@ -59,26 +60,28 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--b);outline-offse
 /* top bar */
 .bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .bar h2{font-size:24px;flex:1;min-width:160px}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px;color:var(--b)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:4px 12px;font-size:14px;color:var(--b)}
 .chip.on{background:var(--b);color:#14101c}
 
 /* roster cards */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 12px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;cursor:pointer;color:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:16px}
+.card .who,.card .tags,.card .empty{padding:0 4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px 8px 12px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;cursor:pointer;color:inherit}
 .card.mine{border-color:var(--a);box-shadow:0 0 0 1px var(--a) inset}
 .art{width:100%;aspect-ratio:1;border-radius:50%;position:relative;overflow:hidden;background:#120e1b;display:grid;place-items:center;border:2px dashed var(--line);color:var(--mu);font-size:28px}
 .art img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.art.has{border:0;border-radius:12px;aspect-ratio:16/9;background:#000}
+.art.has{border:0;border-radius:8px;aspect-ratio:16/9;background:#000}
+.art:not(.has){width:96px;margin:8px auto}
 .art.has.on{box-shadow:0 0 0 3px var(--a),0 0 18px var(--a)}
-.play{position:absolute;right:2px;bottom:2px;width:34px;height:34px;border-radius:50%;border:0;background:var(--a);color:#14101c;z-index:2}
+.play{position:absolute;right:8px;bottom:8px;width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:50%;border:0;background:var(--a);color:#14101c;z-index:2}
 .who{font-weight:700}.who small{color:var(--mu);font-weight:400;margin-right:4px}
 .tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;font-size:13px;color:var(--b)}
 .tags span{cursor:pointer}
 .empty{color:var(--mu);font-size:13px}
 
 /* admin */
-.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:16px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px}
 .panel h3{margin-bottom:10px;font-size:20px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .row>*{flex:1;min-width:90px}
@@ -87,30 +90,30 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--b);outline-offse
 .rl span{flex:1}
 
 /* dock */
-#dock{position:fixed;left:50%;bottom:0;width:min(100%,520px);transform:translate(-50%,110%);transition:transform .3s;background:#000;border-radius:18px 18px 0 0;overflow:hidden;z-index:5;box-shadow:0 -10px 40px #000a}
+#dock{position:fixed;left:50%;bottom:0;width:min(100%,520px);transform:translate(-50%,110%);transition:transform .3s;background:#000;border-radius:16px 16px 0 0;overflow:hidden;z-index:5;box-shadow:0 -10px 40px #000a}
 #dock.on{transform:translate(-50%,0)}
 .vid{aspect-ratio:16/9;width:100%}
 .vid iframe{width:100%;height:100%}
-.np{display:flex;gap:8px;align-items:center;padding:10px 12px;background:var(--card)}
+.np{display:flex;gap:8px;align-items:center;padding:12px;background:var(--card)}
 .np b{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* dialog */
-dialog{background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:20px;padding:20px;width:min(92vw,400px)}
+dialog{background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:16px;padding:20px;width:min(92vw,400px)}
 dialog::backdrop{background:#000b}
 dialog form{display:flex;flex-direction:column;gap:10px}
-.pv{aspect-ratio:16/9;border-radius:12px;background:#120e1b center/cover;display:none}
+.pv{aspect-ratio:16/9;border-radius:8px;background:#120e1b center/cover;display:none}
 .pv.on{display:block}
 .err{color:var(--a);min-height:1.2em;margin:0;font-size:14px}
-#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 18px;border-radius:999px;z-index:9;display:none}
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 16px;border-radius:12px;z-index:9;display:none}
 @media(prefers-reduced-motion:reduce){.disc,.glow,.ring,.ring2,.nt,.cover h1 em{animation:none}}
 </style>
 </head>
 <body>
-<button id="bgm" class="ghost" aria-pressed="false">♪ BGM</button>
+<button id="bgm" class="ghost" aria-pressed="false" aria-label="BGM"></button>
 <div id="app"></div>
-<footer>© 2026 MINARI STUDIO. All rights reserved.<span class="sep">|</span>Class Playlist Web App v1.0<br></footer>
+<footer>© 2026 MINARI STUDIO. All rights reserved.<span class="sep">|</span>Class Playlist Web App v1.1<br></footer>
 <div id="dock"><div class="vid"><div id="yt"></div></div>
- <div class="np"><b id="npt"></b><button class="ghost" data-act="prev" aria-label="이전">◀◀</button><button class="ghost" data-act="next" aria-label="다음">▶▶</button><button class="ghost" data-act="stop" aria-label="닫기">✕</button></div></div>
+ <div class="np"><b id="npt"></b><button class="ghost ic" data-act="prev" aria-label="이전"></button><button class="ghost ic" data-act="next" aria-label="다음"></button><button class="ghost ic" data-act="stop" aria-label="닫기"></button></div></div>
 <dialog id="dlg"><form id="f"></form></dialog>
 <div id="toast" role="status"></div>
 
@@ -121,6 +124,15 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const vidOf = u => (String(u).match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([\w-]{11})/) || [])[1];
 const byNo = (a, b) => a.localeCompare(b, 'ko', {numeric: true});
 const LS = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); v === null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch { return null; } };
+// 선 아이콘 (lucide 계열, 18px / 1.5 stroke)
+const I = {
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>', skipB: '<polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/>',
+  skipF: '<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/>', x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  plus: '<path d="M5 12h14"/><path d="M12 5v14"/>', music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  musicOff: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="m3 3 18 18"/>'
+};
+const ic = (d, s = 18) => `<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+$('[data-act=prev]').innerHTML = ic(I.skipB); $('[data-act=next]').innerHTML = ic(I.skipF); $('[data-act=stop]').innerHTML = ic(I.x);
 const ADMIN_PW = 'minah'; // shortcut: 클라이언트 코드에 있어 개발자도구로 볼 수 있음, 민감 데이터가 생기면 서버 인증으로 교체
 
 // ---- storage: Firestore, 설정이 없으면 localStorage 연습 모드 ----
@@ -175,7 +187,7 @@ const selects = () => `<div class="sel">
 const views = {
   cover: () => `<main class="cover">
     <div class="stage"><i class="glow"></i><i class="ring"></i><i class="ring2"></i>
-      ${[['4%','-40','28px','#ff7a5c',0],['18%','30','22px','#b79cff',.9],['34%','-20','34px','#7ee8fa',1.8],['62%','40','26px','#ff7a5c',2.6],['76%','-30','30px','#b79cff',3.4],['90%','20','24px','#7ee8fa',4.2],['48%','0','20px','#fff',.4],['10%','50','24px','#fff',2.2]]
+      ${[['6%','-40','28px','#ff7a5c',0],['34%','-20','32px','#7ee8fa',1.8],['62%','40','26px','#b79cff',3.6],['88%','20','24px','#fff',5.4]]
         .map(([x, dx, s, c, d], i) => `<span class="nt" aria-hidden="true" style="--x:${x};--dx:${dx}px;--s:${s};--c:${c};--d:${d}s">${'♪♫♬♩'[i % 4]}</span>`).join('')}
       <button class="disc" data-act="disc" aria-label="관리자 모드"></button></div>
     <h1>우리반 <em>PLAYLIST</em></h1>
@@ -222,9 +234,9 @@ function card(n) {
   const s = S.students[n], mine = n === S.me, on = Q?.q[Q.i] === n && dock.classList.contains('on');
   const art = s.vid
     ? `<div class="art has ${on ? 'on' : ''}"><img src="https://i.ytimg.com/vi/${s.vid}/mqdefault.jpg" alt="" loading="lazy"></div>`
-    : `<div class="art">${mine ? '+' : ''}</div>`;
+    : `<div class="art">${mine ? ic(I.plus, 28) : ''}</div>`;
   return `<div class="card ${mine ? 'mine' : ''}" role="button" tabindex="0" data-act="card" data-no="${esc(n)}">
-    <div style="position:relative;width:100%">${art}${s.vid ? `<button class="play" data-act="play" data-no="${esc(n)}" aria-label="재생">▶</button>` : ''}</div>
+    <div style="position:relative;width:100%">${art}${s.vid ? `<button class="play" data-act="play" data-no="${esc(n)}" aria-label="재생">${ic(I.play, 16)}</button>` : ''}</div>
     <div class="who"><small>${esc(n)}</small>${esc(s.name)}</div>
     ${(s.tags || []).length ? `<div class="tags">${s.tags.map(t => `<span data-act="tag" data-t="${esc(t)}">#${esc(t)}</span>`).join('')}</div>`
       : `<div class="empty">${mine ? '눌러서 노래 올리기' : '아직 비어있어요'}</div>`}</div>`;
@@ -280,7 +292,7 @@ const BGM = (() => {
     schedule.next = t0 + beat * 4;
   };
   const sync = () => {
-    const btn = $('#bgm'); btn.classList.toggle('on', want); btn.setAttribute('aria-pressed', want); btn.textContent = want ? '♪ BGM 켜짐' : '♪ BGM 꺼짐';
+    const btn = $('#bgm'); btn.classList.toggle('on', want); btn.setAttribute('aria-pressed', want); btn.innerHTML = ic(want ? I.music : I.musicOff, 20); btn.title = want ? 'BGM 끄기' : 'BGM 켜기'; btn.setAttribute('aria-label', btn.title);
     if (!armed) return;
     if (want && !ducked) {
       if (!ctx) { ctx = new AudioContext(); const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200; out = ctx.createGain(); out.gain.value = 0.35; out.connect(lp).connect(ctx.destination); }
